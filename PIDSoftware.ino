@@ -6,7 +6,8 @@
 
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 
-int potValue = 0;        // value read from the pot
+int potCount = 0;        // value read from the pot
+float angleRead;
 
 void setup() {
   // Set up serial port
@@ -15,13 +16,21 @@ void setup() {
 
 void loop() {
   // read the analog in value:
-  potValue = analogRead(analogInPin);
+  potCount = analogRead(analogInPin);
+
+  
+  // emperically, angleRead = 169.285780959057 + (-0.225789125999221) * potCount
+  angleRead = 169.285780959057 + (-0.225789125999221) * potCount;
+  
   // map it to the range of the analog out:
   //outputValue = map(sensorValue, 0, 1023, 0, 255);
 
   // print the results to the serial monitor:
   Serial.print("pot = ");
-  Serial.println(potValue);
-  delay(1);  
+  Serial.println(potCount);
+  Serial.print("angle = " );
+  Serial.println(angleRead);
+  Serial.println();
+  delay(1000);  
 
 }
