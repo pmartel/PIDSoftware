@@ -66,11 +66,13 @@ void loop() {
   default :
     break;
   }
-
-  
 }
 
 // functions are alphabetical
+
+void BangBang() {
+  
+}
 
 void DisplayAngle() {
   int inByte;
@@ -109,7 +111,7 @@ void HelpAll() {
     Serial << "q to stop motor return to Idle state\r\n";
     break;
   case stBang :
-    Serial << "q to stop motor return to Idle state\r\n";
+    HelpBang();
     break;
   case stPID :
      Serial << "q to stop motor return to Idle state\r\n";
@@ -121,6 +123,15 @@ void HelpAll() {
     break;
   }
   
+}
+
+void HelpBang() {
+  Serial << "q - stop motor return to Idle state\r\n";
+  Serial << "a<number> - set target angle\r\n";
+  Serial << "d<number> - set (1/2) deadband\r\n";
+  Serial << "g - start\r\n";
+  Serial << "s - stop but stay in bang-bang mode\r\n";
+  Serial << "v<number> - set motor speed, 0-255 default 150\r\n";  
 }
 
 void HelpIdle() {
@@ -166,8 +177,7 @@ void ManualMotor() {
   Serial << "inNum = " << inNum << endl;
   oldSp = sp;
   //limit the speed
-  sp = min( inNum, 255 );
-  sp = max( sp, -255 );
+  sp = constrain( inNum, -255, 255 );
   Serial   << "Changing speed from " << oldSp << " to " << sp << endl;
   myMotor->setSpeed( abs(sp) );
   if ( sp >= 0 ) {
