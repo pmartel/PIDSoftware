@@ -57,6 +57,7 @@ void loop() {
     DisplayAngle();
     break;
   case stManual :
+    ManualMotor();
     break;
   case stBang :
     break;
@@ -104,7 +105,7 @@ void HelpAll() {
     Serial << "q to return to Idle\r\n";
     break;
   case stManual :
-    Serial << "enter a number -255 to 255 to set motor speed\r\n";
+    Serial << "Enter a number -255 to 255 to set motor speed\r\n";
     Serial << "q to stop motor return to Idle state\r\n";
     break;
   case stBang :
@@ -135,6 +136,46 @@ void HelpIdle() {
 
 }
 
+void ManualMotor() {
+  int inByte, inNum;
+  static int sp = 0, oldSp = 0;
+  
+  inByte = Serial.peek();
+  switch( inByte ) {
+  case 'q' :
+    Quit();
+    Serial.read(); // get rid of character
+    return;
+    break;
+  case 'h' :
+  case '?' :
+    HelpAll();
+    Serial.read(); // get rid of character
+    return;
+    break;
+  case -1 : // no input
+    return;
+    break;
+  default: // assume input is a number
+    inNum = Serial.parseInt();
+    break;
+  }
+  Serial << "inByte = " << inByte << endl;
+  Serial << "inNum = " << inNum << endl;
+  oldSp = sp;
+  //limit the speed
+  sp = min( inNum, 255 );
+  sp = max( sp, -255 );
+  Serial   << "Changing speed from " << oldSp << " to " << sp << endl;
+  myMotor->setSpeed( abs(sp) );
+  if ( sp >= 0 ) {
+      myMotor->run(FORWARD);
+  }
+  else {
+      myMotor->run(BACKWARD);    
+  }
+}
+
 void ProcessInput() {
   int byteIn;
   
@@ -154,6 +195,8 @@ void ProcessInput() {
       state = stDisplay;
       break;
     case 'm' :
+      oldState = state;
+      state = stManual;
       break;
     case 'b' :
       break;
