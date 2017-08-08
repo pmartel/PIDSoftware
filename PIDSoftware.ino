@@ -3,8 +3,10 @@
  * YouTube video  https://www.youtube.com/watch?v=2elEXcv0AV8&t=128s
  * 
  */
+#include <Streaming.h>
 
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
+const char ESC = 0x1B;
 
 int potCount = 0;        // value read from the pot
 float angleRead;
@@ -26,11 +28,13 @@ void loop() {
   //outputValue = map(sensorValue, 0, 1023, 0, 255);
 
   // print the results to the serial monitor:
-  Serial.print("pot = ");
-  Serial.println(potCount);
-  Serial.print("angle = " );
-  Serial.println(angleRead);
-  Serial.println();
+//  Serial.print("pot = ");
+//  Serial.println(potCount);
+//  Serial.print("angle = " );
+//  Serial.println(angleRead);
+//  Serial.println();
+Serial << "pot = " << potCount << endl;
+Serial << "angle = " << angleRead << endl;
   delay(1000);  
 
 }
