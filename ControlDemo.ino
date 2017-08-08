@@ -14,6 +14,7 @@ float angleRead;
 void setup() {
   // Set up serial port
   Serial.begin(115200);
+  Serial << "Control Demo code\r\n";
 }
 
 void loop() {
@@ -34,7 +35,7 @@ void loop() {
 //  Serial.println(angleRead);
 //  Serial.println();
 Serial << "pot = " << potCount << endl;
-Serial << "angle = " << angleRead << endl;
+Serial << "angle = " << angleRead << "\r\n\n";
   delay(1000);  
 
 }
