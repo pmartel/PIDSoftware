@@ -21,8 +21,8 @@ void loop() {
   potCount = analogRead(analogInPin);
 
   
-  // emperically, angleRead = 169.285780959057 + (-0.225789125999221) * potCount
-  angleRead = 169.285780959057 + (-0.225789125999221) * potCount;
+  // emperically, angleRead = 143.996650585439 + (-0.24148432002069) * potCount
+  angleRead = 143.996650585439 + (-0.241484320020696) * potCount;
   
   // map it to the range of the analog out:
   //outputValue = map(sensorValue, 0, 1023, 0, 255);
