@@ -139,7 +139,7 @@ void HelpIdle() {
 void ManualMotor() {
   int inByte, inNum;
   static int sp = 0, oldSp = 0;
-  
+
   inByte = Serial.peek();
   switch( inByte ) {
   case 'q' :
@@ -154,6 +154,8 @@ void ManualMotor() {
     return;
     break;
   case -1 : // no input
+    Serial << "angle " << ReadAngle() << endl;
+    delay(500);
     return;
     break;
   default: // assume input is a number
