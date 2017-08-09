@@ -152,8 +152,8 @@ void DisplayAngle() {
   //outputValue = map(sensorValue, 0, 1023, 0, 255);
 
   // print the results to the serial monitor:
-  Serial << "pot = " << potCount << endl;
-  Serial << "angle = " << angleRead << "\r\n";
+  Serial << "potCount  = " << potCount;
+  Serial << " angle = " << angleRead << "\r\n\n";
   delay(1000); 
   inByte = Serial.read();
   if ( 'q' == inByte ) Quit();
