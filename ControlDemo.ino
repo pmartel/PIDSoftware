@@ -1,5 +1,5 @@
 /*
- * This is code for a PID demonstration based on Tim Wescott's 
+ * This is code for a Controller demonstration based on Tim Wescott's 
  * YouTube video  https://www.youtube.com/watch?v=2elEXcv0AV8&t=128s
  * 
  */
@@ -19,7 +19,6 @@ const char stIdle = 'i';
 const char stDisplay = 'a'; // angle display
 const char stManual = 'm';
 const char stBang = 'b';
-const char stPID = 'p';
 
 // globals
 int     potCount = 0;        // value read from the pot
@@ -62,8 +61,6 @@ void loop() {
   case stBang :
     BangBang();
     break;
-  case stPID :
-    break;
   default :
     break;
   }
@@ -71,8 +68,11 @@ void loop() {
 
 // functions are alphabetical
 
+/*
+ * Bang-bang controller
+ */
 void BangBang() {
-  int inByte, inNum;
+  int inByte;
   bool controllerOn = false;
   int sp = 150;
   float target;
@@ -182,9 +182,6 @@ void HelpAll() {
   case stBang :
     HelpBang();
     break;
-  case stPID :
-     Serial << "q to stop motor return to Idle state\r\n";
-   break;
   default :
     Serial << "Unknown state 0x" << _HEX(state) << endl;
     Serial << "returning to Idle state\r\n";
@@ -201,7 +198,7 @@ void HelpBang() {
   Serial << "d<number> - set (1/2) deadband\r\n";
   Serial << "g - start\r\n";
   Serial << "s - stop but stay in bang-bang mode\r\n";
-  Serial << "v<number> - set motor speed, 0-255 default 150\r\n";  
+  Serial << "v<number> - set motor speed, 0-255 default 150\r\n\n";  
 }
 
 void HelpIdle() {
@@ -213,9 +210,7 @@ void HelpIdle() {
   Serial << "h or ? - print this help\r\n";
   Serial << "a - display angle\r\n";
   Serial << "m - manual motor control\r\n";
-  Serial << "b - bang-bang controller\r\n";
-  Serial << "p - PID controller\r\n";
-
+  Serial << "b - bang-bang controller\r\n\n";
 }
 
 void ManualMotor() {
@@ -259,6 +254,7 @@ void ManualMotor() {
   }
 }
 
+
 void ProcessInput() {
   int byteIn;
   
@@ -284,8 +280,6 @@ void ProcessInput() {
     case 'b' :
       oldState = state;
       state = stBang;
-      break;
-    case 'p' :
       break;
     default :  
       break;
