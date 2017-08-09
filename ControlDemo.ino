@@ -24,8 +24,8 @@ const char stPID = 'p';
 // globals
 int     potCount = 0;        // value read from the pot
 float   angleRead;
-unsigned long   sTime, eTime;
-char state, oldState;
+unsigned long   sTime;
+char    state, oldState;
 
 // motor related
 // Create the motor shield object with the default I2C address
@@ -60,6 +60,7 @@ void loop() {
     ManualMotor();
     break;
   case stBang :
+    BangBang();
     break;
   case stPID :
     break;
@@ -71,22 +72,88 @@ void loop() {
 // functions are alphabetical
 
 void BangBang() {
+  int inByte, inNum;
+  bool controllerOn = false;
+  int sp = 150;
+  float target;
+  float deadBand = 10;
   
+  while ( stBang == state ) {
+    inByte = Serial.read();
+    switch( inByte ) {
+    case -1 : // no character
+      break;
+    case 'q' :
+      controllerOn = false;
+      Quit();
+      return;
+      break;
+    case 'h' :
+    case '?' :
+      HelpAll();
+      Serial << "\r\nBang Bang parameters\r\n";
+      Serial << "Target angle = " << target << " deadband = " << deadBand << " motor speed = " << sp << endl;
+      break;
+    case 'a' : // set desired angle
+      target = Serial.parseFloat();
+      target = constrain( target, -20, 140);
+      Serial << "new target = " << target << endl;
+      break;
+    case 'd' : // set (half) deadband default 10
+      deadBand = Serial.parseFloat();
+      deadBand = constrain( deadBand, 0, 45);
+      Serial << "new deadband = " << deadBand << endl;
+      break;
+    case 'g' : // go - start controller
+      controllerOn = true;
+      break;
+    case 's' : // stop controller
+      controllerOn = false;
+      break;
+    case 'v' : // set motor speed (default = 150)
+      sp = Serial.parseInt();
+      sp = constrain( sp, 0, 255);
+      Serial << "new speed = " << sp << endl;
+      break;
+      break;
+    default: // bad input, just eat the character
+      break;
+    } 
+
+    if ( controllerOn ) {
+      float errorAng = ReadAngle() - target;
+
+      if ( Timer( 1000 ) ) {
+        Serial << "Target angle = " << target << " deadband = " << deadBand << " motor speed = " << sp << endl;
+        Serial <<  "Error = " << errorAng << endl << endl;
+      }
+      myMotor->setSpeed( sp );
+      if( abs( errorAng ) <= deadBand ) {
+        myMotor->run(RELEASE); // make sure motor is stopped (coasting);      
+      }
+      else if ( errorAng < 0 ) {
+        myMotor->run(FORWARD);
+      }
+      else {
+        myMotor->run(BACKWARD);    
+      }
+   }
+    else {
+      myMotor->run(RELEASE); // make sure motor is stopped (coasting);      
+    }
+  } // while in stBang 
 }
 
 void DisplayAngle() {
   int inByte;
   
-  sTime = micros();
   angleRead = ReadAngle();  
-  eTime = micros();
   // map it to the range of the analog out:
   //outputValue = map(sensorValue, 0, 1023, 0, 255);
 
   // print the results to the serial monitor:
   Serial << "pot = " << potCount << endl;
   Serial << "angle = " << angleRead << "\r\n";
-  Serial << "angle calc took " << eTime - sTime << " usec\r\n\n";
   delay(1000); 
   inByte = Serial.read();
   if ( 'q' == inByte ) Quit();
@@ -104,9 +171,11 @@ void HelpAll() {
     HelpIdle();
     break;
   case stDisplay :
+    Serial << "Angle display mode\r\n";
     Serial << "q to return to Idle\r\n";
     break;
   case stManual :
+    Serial << "Manual motor control mode \r\n";
     Serial << "Enter a number -255 to 255 to set motor speed\r\n";
     Serial << "q to stop motor return to Idle state\r\n";
     break;
@@ -126,6 +195,7 @@ void HelpAll() {
 }
 
 void HelpBang() {
+  Serial << "Bang bang controller mode\r\n";
   Serial << "q - stop motor return to Idle state\r\n";
   Serial << "a<number> - set target angle\r\n";
   Serial << "d<number> - set (1/2) deadband\r\n";
@@ -136,7 +206,8 @@ void HelpBang() {
 
 void HelpIdle() {
   Serial << "Control Demo code\r\n";
-  Serial << "Commands are not case sensitive\r\n";
+  Serial << "idle mode\r\n";
+  Serial << "Use lower case commands\r\n";
   Serial << "depending on your terminal you may need to hit enter\r\n";
   Serial << "q will stop the motor and return to the main loop\r\n";
   Serial << "h or ? - print this help\r\n";
@@ -155,13 +226,13 @@ void ManualMotor() {
   switch( inByte ) {
   case 'q' :
     Quit();
-    Serial.read(); // get rid of character
+    Serial.read(); // remove character
     return;
     break;
   case 'h' :
   case '?' :
     HelpAll();
-    Serial.read(); // get rid of character
+    Serial.read(); // remove character
     return;
     break;
   case -1 : // no input
@@ -211,6 +282,8 @@ void ProcessInput() {
       state = stManual;
       break;
     case 'b' :
+      oldState = state;
+      state = stBang;
       break;
     case 'p' :
       break;
@@ -238,4 +311,28 @@ float ReadAngle() {
   return angleRead;
 
 }
+
+// if at least t milliseconds has passed since last call, reset timer and return true
+// allows non-blocking timed events
+boolean Timer( unsigned long t ) {
+  static unsigned long  last = 0;
+  unsigned long ms = millis();
+  
+  if ( ms >= t + last ) {
+    last = ms;
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+// Timer utility functions.  Concept from Matlab
+void tic() {
+  sTime = micros();
+}
+
+unsigned long toc() {
+  return micros() - sTime;
+}
+
 
