@@ -74,7 +74,7 @@ void loop() {
 void BangBang() {
   int inByte;
   bool controllerOn = false;
-  int sp = 150;
+  int sp = 250;
   float target;
   float deadBand = 10;
   
@@ -231,7 +231,7 @@ void ManualMotor() {
     return;
     break;
   case -1 : // no input
-    Serial << "angle " << ReadAngle() << endl;
+    Serial << "speed " << sp << "  angle " << ReadAngle() << endl;
     delay(500);
     return;
     break;
