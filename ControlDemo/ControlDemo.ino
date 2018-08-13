@@ -8,7 +8,7 @@
 #include <Adafruit_MotorShield.h>
 
 // #include "ControlDemo.h"
-//Apparently Arduino doesn't like to let you write include files pr handle separate modules
+//Apparently Arduino doesn't like to let you write include files to handle separate modules
 
 // constants 
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
